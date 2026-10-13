@@ -32,7 +32,7 @@
 }
 [data-theme="rose"]{--bg:#FBF4F3;--bg2:#F5E9E8;--line:#EEDFDE;--primary:#B85F6C;--primary-h:#A44F5C;--primary-soft:#F6E1E1;--primary-ink:#8E4653;--accent:#D49AA3;--accent-soft:#F8E8EA;--accent-ink:#8E4653;--hero:linear-gradient(135deg,#F6E1E1 0%,#FBEFEF 100%)}
 [data-theme="sage"]{--bg:#F7F5F1;--bg2:#EFEDE7;--line:#E6E3DC;--ink:#33302E;--primary:#5E7A55;--primary-h:#4F6A47;--primary-soft:#E2EADB;--primary-ink:#3D5236;--accent:#C9858C;--accent-soft:#F5E2E3;--accent-ink:#8E4B53;--hero:linear-gradient(135deg,#F5E2E3 0%,#E2EADB 100%)}
-[data-theme="night"]{--bg:#1F1B1A;--bg2:#2A2524;--card:#2A2524;--ink:#EEE7E3;--muted:#B5AAA4;--faint:#857A75;--line:#3C3532;
+[data-theme="night"]{color-scheme:dark;--bg:#1F1B1A;--bg2:#2A2524;--card:#2A2524;--ink:#EEE7E3;--muted:#B5AAA4;--faint:#857A75;--line:#3C3532;
   --primary:#D9A39D;--primary-h:#E6B5AF;--on-primary:#1F1B1A;--primary-soft:#45322F;--primary-ink:#F2D2CD;
   --accent:#CBB49E;--accent-soft:#3E352D;--accent-ink:#E9DACB;--gold:#D8B06A;--gold-soft:#433822;--rose:#D79BA1;--rose-soft:#4A3134;--rose-ink:#F0C6CA;
   --hero:linear-gradient(135deg,#3A2B29 0%,#332C25 100%);--shadow:0 1px 2px rgba(0,0,0,.3)}
@@ -234,6 +234,12 @@ details.acc .b{padding:0 14px 14px 14px;font-size:.88rem;color:var(--muted)}
 .bigtap span,.stat .v,.tile .v{font-family:'QDigits',var(--serif)}
 .g3.keep{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 
+:root{color-scheme:light}
+[data-theme="night"] .chk{accent-color:var(--primary)}
+.chk{appearance:none;-webkit-appearance:none;border:1.5px solid var(--faint);border-radius:5px;background:var(--card);display:inline-grid;place-items:center;margin:0}
+.chk:checked{background:var(--primary);border-color:var(--primary)}
+.chk:checked::after{content:"";width:5px;height:10px;border:solid var(--on-primary);border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+
 </style>
 </head>
 <body>
@@ -247,7 +253,7 @@ details.acc .b{padding:0 14px 14px 14px;font-size:.88rem;color:var(--muted)}
 <script>
 'use strict';
 /* ===== Pregnancy Tracker — QaisarDigital ===== */
-const APP = {name:'Pregnancy Tracker', studio:'QaisarDigital', version:'1.0.0', key:'qd_preg_v1', photoDB:'qd_preg_photos'};
+const APP = {name:'Pregnancy Tracker', studio:'QaisarDigital', version:'1.0.1', key:'qd_preg_v1', photoDB:'qd_preg_photos'};
 
 /* ---------- icons ---------- */
 const IP = {
@@ -690,14 +696,16 @@ function vWeeks(){
   const bump = (DB.bump||[]).slice().sort((a,b)=>a.week-b.week);
   return `<h1>Week by week</h1><p class="muted">How baby is growing, and a gentle note for you. Sizes are approximate — every baby grows at their own pace.</p>
   <div class="card" style="margin-top:14px"><div class="between"><div><h3>${ic('camera')} Bump diary</h3><p class="small muted">A photo each week, saved only on this device.</p></div><button class="btn pri sm" data-act="bumpAdd" data-arg="${cw||''}">${ic('plus')} Add photo</button></div>
-    <div class="photos" style="margin-top:12px">${bump.map(b=>`<div class="photo" data-act="bumpView" data-arg="${b.id}"><img data-photo="${b.photo}" alt="Week ${b.week} bump photo"><span>Week ${b.week}</span></div>`).join('')}<div class="photo add" data-act="bumpAdd" data-arg="${cw||''}">${ic('camera')}<span style="position:static;background:none;color:inherit">Week ${cw||'?'}</span></div></div></div>
+    <div class="photos" style="margin-top:12px">${bump.map(b=>`<div class="photo" data-act="bumpView" data-arg="${b.id}"><img data-photo="${b.photo}" alt="Week ${b.week} bump photo"><span>Week ${b.week}</span></div>`).join('')}<div class="photo add" data-act="bumpAdd" data-arg="${cw||''}">${ic('camera')}<span style="position:static;background:none;color:inherit">${cw?'Week '+cw:'Add photo'}</span></div></div></div>
   <div style="margin-top:8px">${WEEKS.map(([w,size,em,dev,you])=>{ const ph=bump.find(b=>b.week===w);
     return `<details class="wk ${w===cw?'cur':''}" ${w===cw?'open':''} id="wk${w}"><summary><span class="num">${w}</span><span class="emoji">${em}</span><span class="grow"><b style="font-weight:500">Week ${w}</b>${w===cw?' <span class="pill">This week</span>':''}<br><span class="small muted">About the size of ${size}</span></span></summary>
     <div class="b"><p><b style="color:var(--ink);font-weight:500">Baby:</b> ${dev}</p>${WEEK_SIZE[w]?`<p class="small faint">Typical size: ${WEEK_SIZE[w]}</p>`:''}<p style="margin-top:6px"><b style="color:var(--ink);font-weight:500">For you:</b> ${you}</p>
     ${ph?`<div class="photo" style="width:120px;margin-top:8px" data-act="bumpView" data-arg="${ph.id}"><img data-photo="${ph.photo}" alt=""></div>`:`<button class="btn sm" style="margin-top:8px" data-act="bumpAdd" data-arg="${w}">${ic('camera')} Add week ${w} photo</button>`}</div></details>`; }).join('')}</div>
   <div class="note" style="margin-top:14px">${ic('info')} This is general information to follow along with, not medical advice. Your provider knows your pregnancy best.</div>`;
 }
+function askWeek(){ return new Promise(res=>{ const ov=modal('Which week is this photo?', `<p class="small muted" style="margin-top:12px">Add your due date in Settings and the week is filled in for you.</p><div class="sec"><label class="f">Week of pregnancy</label><input type="number" id="aw" min="1" max="42" placeholder="20"></div>`, `<button class="btn" data-c>Cancel</button><button class="btn pri" data-s>Continue</button>`); $('[data-c]',ov).onclick=()=>{closeModal();res(0);}; $('[data-s]',ov).onclick=()=>{ const v=+$('#aw',ov).value; if(!v||v<1||v>42){ toast('Enter a week from 1 to 42'); return; } closeModal(); res(v); }; setTimeout(()=>$('#aw',ov)?.focus(),50); }); }
 ACT.bumpAdd = async w => {
+  if (!+w) { const p0=preg(); if (!p0 || p0.born) { w = await askWeek(); if (!w) return; } }
   const data = await pickPhoto(); if (!data) return;
   const id = 'b'+uid(); await phPut(id, data).catch(()=>toast('Could not save the photo. Storage may be full.'));
   const p = preg(); w = +w || (p && !p.born ? p.w : 0);
